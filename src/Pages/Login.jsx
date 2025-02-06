@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate,Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 
 const Login = () => {
   const { login } = useAuth();
@@ -11,11 +13,39 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    console.log('Login form submitted with:', { email, password });
+
     try {
-      await login(email, password); // Call the login function from context
-      navigate('/'); // Redirect to the home page after successful login
+      await login(email, password);
+      console.log('Login successful, navigating to home');
+      navigate('/');  // Redirect to home after login
     } catch (err) {
-      setError(err || 'Failed to login');
+      console.error('Login error:', err);
+      setError(err?.message || 'Failed to login');
+    }
+  };
+
+  // Handle Google Login Response
+  const handleGoogleSuccess = async (response) => {
+    console.log('Google login response:', response);
+    try {
+      const { data } = await axios.post("http://localhost:5000/api/auth/google-login", {
+        token: response.credential,
+      });
+
+      console.log('Google login response data:', data);
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        console.log('Token saved in localStorage');
+        navigate("/");  // Redirect to home after successful Google login
+      } else {
+        console.error('No token received from server');
+        setError('Failed to retrieve token.');
+      }
+    } catch (error) {
+      console.error('Google login failed:', error);
+      setError("Google login failed. Please try again.");
     }
   };
 
@@ -35,6 +65,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              autoComplete="username"
               className="w-full p-3 mt-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -47,20 +78,25 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-              autocomplete="current-password"
+              autoComplete="current-password"
               className="w-full p-3 mt-2 border border-gray-300 rounded-md"
             />
           </div>
 
           <div className="flex justify-center">
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white py-3 rounded-md"
-            >
+            <button type="submit" className="w-full bg-blue-500 text-white py-3 rounded-md">
               Login
             </button>
           </div>
         </form>
+
+        <div className="flex justify-center mt-4">
+          {/* Google Login button */}
+          <GoogleLogin 
+            onSuccess={handleGoogleSuccess} 
+            onError={() => console.log("Google Login Failed")} 
+          />
+        </div>
 
         <div className="text-center mt-4">
           <p className="text-sm">

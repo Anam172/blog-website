@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate,Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { GoogleLogin } from '@react-oauth/google';
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -16,6 +17,22 @@ const Signup = () => {
       navigate("/login");
     } catch (error) {
       alert(error.response?.data?.error || "Something went wrong");
+    }
+  };
+
+  // Handle Google Signup Response
+  const handleGoogleSuccess = async (response) => {
+    try {
+      const { data } = await axios.post("http://localhost:5000/api/auth/google-login", {
+        token: response.credential,
+      });
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        navigate("/");  // Redirect to home after successful Google login
+      }
+    } catch (error) {
+      console.error("Google Signup failed", error);
     }
   };
 
@@ -45,19 +62,22 @@ const Signup = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
-          >
+          <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-md">
             Signup
           </button>
         </form>
+
+        <div className="flex justify-center mt-4">
+          {/* Google Login button */}
+          <GoogleLogin 
+            onSuccess={handleGoogleSuccess} 
+            onError={() => console.log("Google Signup Failed")} 
+          />
+        </div>
+
         <p className="text-center text-gray-600 mt-4">
           Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-blue-500 cursor-pointer hover:underline"
-          >
+          <Link to="/login" className="text-blue-500 cursor-pointer hover:underline">
             Login
           </Link>
         </p>

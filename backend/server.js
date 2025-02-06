@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const session = require("express-session");
+const passport = require("passport");
 
 dotenv.config();
 
@@ -17,16 +19,25 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "*",  
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type"],
+  origin: 'http://localhost:5173', 
+  methods: ['GET', 'POST'],
+  credentials: true,
 }));
 
 app.use(bodyParser.json());
 app.use(express.json());
 
+app.use(session({
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: true,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 // API Routes
-app.use("/api/auth", authRoutes);
+app.use('/api/auth', authRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/teams", teamRoutes); 
 app.use("/api/contact", contactRoutes);
