@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const teamSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -7,6 +7,6 @@ const teamSchema = new mongoose.Schema({
   image: { type: String, required: true }, 
 });
 
-const Team = mongoose.model('Team', teamSchema);
+const Team = mongoose.model("Team", teamSchema);
 
-module.exports = Team;
+export default Team;

@@ -1,9 +1,9 @@
-const express = require("express");
+import express from "express";
+import { getAllTeamMembers } from "../controllers/teamController.js"; 
+
 const router = express.Router();
-const { getAllTeamMembers } = require("../controllers/teamController");
 
 // Route to get all team members
-router.get("/", getAllTeamMembers);  
+router.get("/", getAllTeamMembers);
 
-
-module.exports = router;
+export default router; 

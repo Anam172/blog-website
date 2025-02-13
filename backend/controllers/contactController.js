@@ -1,16 +1,19 @@
-const nodemailer = require('nodemailer');
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config(); // Load environment variables
 
 // Transporter Configuration
 const transporter = nodemailer.createTransport({
- service : 'gmail',
+  service: "gmail",
   auth: {
-    user: process.env.EMAIL,  
-    pass: process.env.EMAIL_PASSWORD,  
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASSWORD,
   },
 });
 
 // Send Contact Email Function
-const sendContactEmail = async (req, res) => { 
+export const sendContactEmail = async (req, res) => {
   const { name, email, message } = req.body;
 
   // Ensure all fields are provided
@@ -27,11 +30,9 @@ const sendContactEmail = async (req, res) => {
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: 'Email sent successfully', info });
+    res.status(200).json({ message: "Email sent successfully", info });
   } catch (error) {
     console.error("Error sending email:", error);
-    res.status(500).json({ message: 'Failed to send email', error: error.message });
+    res.status(500).json({ message: "Failed to send email", error: error.message });
   }
 };
-
-module.exports = { sendContactEmail };

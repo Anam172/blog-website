@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
-const Blog = require("../models/Blog");
-const User = require("../models/User"); 
+import mongoose from "mongoose";
+import Blog from "../models/Blog.js";
+import User from "../models/User.js";
 
 // Get all blogs
-const getAllBlogs = async (req, res) => {
+export const getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find().populate("authorID", "image name");
     res.status(200).json(blogs);
@@ -14,7 +14,7 @@ const getAllBlogs = async (req, res) => {
 };
 
 // Create a new blog
-const createBlog = async (req, res) => {
+export const createBlog = async (req, res) => {
   try {
     const { title, summary, content, category, image, authorID } = req.body;
 
@@ -46,9 +46,8 @@ const createBlog = async (req, res) => {
   }
 };
 
-
 // Get a blog by ID
-const getBlogById = async (req, res) => {
+export const getBlogById = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ error: "Invalid blog ID" });
   }
@@ -64,7 +63,7 @@ const getBlogById = async (req, res) => {
 };
 
 // Update a blog
-const updateBlog = async (req, res) => {
+export const updateBlog = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ error: "Invalid blog ID" });
   }
@@ -80,7 +79,7 @@ const updateBlog = async (req, res) => {
 };
 
 // Delete a blog
-const deleteBlog = async (req, res) => {
+export const deleteBlog = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ error: "Invalid blog ID" });
   }
@@ -96,7 +95,7 @@ const deleteBlog = async (req, res) => {
 };
 
 // Get latest blogs 
-const getLatestBlogs = async (req, res) => {
+export const getLatestBlogs = async (req, res) => {
   try {
     const latestBlogs = await Blog.find().sort({ createdAt: -1 }).limit(5).populate("authorID", "image name");
     res.status(200).json({ success: true, data: latestBlogs });
@@ -105,5 +104,3 @@ const getLatestBlogs = async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching latest blogs", error: error.message });
   }
 };
-
-module.exports = { getAllBlogs, createBlog, getBlogById, updateBlog, deleteBlog, getLatestBlogs };
