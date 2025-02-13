@@ -20,9 +20,14 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
-      setUser(res.data.user); // Ensure user object contains `_id`
+      const res = await axios.post("http://localhost:5000/api/auth/login", { email, password },
+        { withCredentials: true } // ✅ Allow cookies (JWT) to be stored
+      );
+      
+      // ✅ Ensure user object contains `_id`
       localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("token", res.data.token);
+      setUser(res.data.user);
     } catch (error) {
       throw error.response?.data?.message || "Login failed";
     }
@@ -31,6 +36,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   return (

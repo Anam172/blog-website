@@ -1,22 +1,23 @@
-const express = require("express");
-const {
-  getAllBlogs,
-  createBlog,
-  getBlogById,
-  updateBlog,
-  deleteBlog,
-  getLatestBlogs,
-} = require("../controllers/blogController");
+import express from "express";
+import { 
+  getAllBlogs, 
+  createBlog, 
+  getBlogById, 
+  updateBlog, 
+  deleteBlog, 
+  getLatestBlogs 
+} from "../controllers/blogController.js"; 
+import protect from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-//latest blogs route 
-router.get("/latest", getLatestBlogs); 
+// ✅ Latest blogs route
+router.get("/latest", getLatestBlogs);
 
-router.get("/", getAllBlogs); 
-router.post("/", createBlog); 
-router.get("/:id", getBlogById); 
-router.put("/:id", updateBlog); 
-router.delete("/:id", deleteBlog); 
+router.get("/", getAllBlogs);
+router.post("/", protect, createBlog); // Only logged-in users can create blogs
+router.get("/:id", getBlogById);
+router.put("/:id", protect, updateBlog); // ✅ Only logged-in users can update blogs
+router.delete("/:id", deleteBlog);
 
-module.exports = router;
+export default router; 

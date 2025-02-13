@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Navbar = () => {
-  const { user, logout } = useAuth(); // Access user data and logout function
+  const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -73,7 +73,7 @@ const Navbar = () => {
           </li>
         </ul>
 
-        {/* Conditional rendering for user profile */}
+        {/* ✅ Conditional Rendering for User Profile */}
         {!user ? (
           <NavLink
             to="/login"
@@ -83,24 +83,27 @@ const Navbar = () => {
           </NavLink>
         ) : (
           <div className="relative" ref={dropdownRef}>
-            {/* Profile Image (Click to Open Dropdown) */}
+            {/* ✅ Fix: Display User Profile Pic */}
             <img
-              src={user.image ? user.image : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT79-tMffOqIXeX4EPdTMbuFsFhReGuavAnow&s"}
+              src={user.profilePic ? user.profilePic : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT79-tMffOqIXeX4EPdTMbuFsFhReGuavAnow&s"}
               alt="User"
               className="w-10 h-10 rounded-full object-cover cursor-pointer"
               onClick={handleToggle}
             />
 
-            {/* Dropdown Menu */}
+            {/* ✅ Dropdown Menu */}
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-gray-50 text-black rounded-lg shadow-lg py-2">
                 <div className="px-4 py-2">
-                  <p className="text-lg font-semibold">{user.name}</p>
-                  <p className="text-sm py-2 text-gray-500">{user.email}</p>
+                  <p className="text-lg font-semibold">{user.name || "User"}</p>
+                  <p className="text-sm py-2 text-gray-500">{user.email || "No Email"}</p>
                 </div>
                 <hr />
                 <button
-                  onClick={logout}
+                  onClick={() => {
+                    logout();
+                    window.location.reload(); // ✅ Fix: Force re-render after logout
+                  }}
                   className="w-full text-center px-4 py-2 text-orange-400 hover:bg-gray-100"
                 >
                   Logout

@@ -1,59 +1,46 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const session = require("express-session");
-const passport = require("passport");
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser"; 
+import authRoutes from "./routes/authRoutes.js";
+import blogRoutes from "./routes/BlogRoutes.js";
+import teamRoutes from "./routes/teamRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 
 dotenv.config();
 
-const authRoutes = require("./routes/authRoutes");
-const blogRoutes = require("./routes/BlogRoutes");
-const teamRoutes = require("./routes/teamRoutes");
-const contactRoutes = require("./routes/contactRoutes");
-
-// Initialize the app
+// Initialize Express App
 const app = express();
 
-
-// Middleware
-app.use(cors({
-  origin: 'http://localhost:5173', 
-  methods: ['GET', 'POST'],
+// ✅ Middleware
+app.use(cors({ 
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
   credentials: true,
 }));
-
-app.use(bodyParser.json());
 app.use(express.json());
+app.use(cookieParser()); 
 
-app.use(session({
-  secret: process.env.JWT_SECRET,
-  resave: false,
-  saveUninitialized: true,
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-// API Routes
-app.use('/api/auth', authRoutes);
+// ✅ API Routes
+console.log("Auth Routes Loaded");
+app.use("/api/auth", authRoutes);
 app.use("/api/blogs", blogRoutes);
-app.use("/api/teams", teamRoutes); 
+app.use("/api/teams", teamRoutes);
 app.use("/api/contact", contactRoutes);
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, { dbName: "blogDB",})
-  .then(() => console.log("MongoDB connected"))
+// ✅ MongoDB Connection
+mongoose.connect(process.env.MONGO_URI, { dbName: "blogDB" })
+  .then(() => console.log("MongoDB connected successfully"))
   .catch((error) => {
     console.error("MongoDB connection failed:", error.message);
+    process.exit(1); // Exit process if DB connection fails
   });
 
-// Root route
+// ✅ Root Route
 app.get("/", (req, res) => {
-  res.send(" Welcome to the Blog API!");
+  res.send("Welcome to the Blog API!");
 });
 
-// Start the server
+// ✅ Start the Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));

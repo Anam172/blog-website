@@ -1,23 +1,33 @@
-const jwt = require('jsonwebtoken');
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
-const protect = (req, res, next) => {
-  let token;
+const UserSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    googleId: { type: String, unique: true, sparse: true },
+    profilePic: {
+      type: String,
+      default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT79-tMffOqIXeX4EPdTMbuFsFhReGuavAnow&s",
+    },
+  },
+  { timestamps: true }
+);
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    try {
-      token = req.headers.authorization.split(' ')[1]; // Extract token
+// Hash password before saving
+UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password") || !this.password) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded.id;
-      next();
-    } catch (error) {
-      res.status(401).json({ message: 'Not authorized, token failed' });
-    }
-  }
-
-  if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
-  }
+// Method to compare passwords
+UserSchema.methods.matchPassword = async function (enteredPassword) {
+  return bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = protect;
+// Export User model
+const User = mongoose.models.User || mongoose.model("User", UserSchema);
+export default User;
